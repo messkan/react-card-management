@@ -1,12 +1,20 @@
 import React, { Component } from 'react';
 import './Auth.css';
+import AuthContext from '../context/auth-context';
 
 class AuthPage extends Component {
      
     
     state = {
-        isLogin: true
+        isLogin: true, 
+        token: null,
+        response: ''
     } 
+      
+    
+
+    static contextType = AuthContext;
+
 
     switchModeHandler = () => {
         this.setState(prevState => {
@@ -39,7 +47,7 @@ class AuthPage extends Component {
         
         if(this.state.isLogin){
 
-            console.log('h');
+            
             fetch('http://192.168.17.161:4000/auth/login', {
                 method: 'POST' ,
                 body : JSON.stringify(requestBody) ,
@@ -52,12 +60,15 @@ class AuthPage extends Component {
                 }
                 return res.json();
             }).then(resData => {
-    
+                 if(resData.token){
+                  this.context.login(resData.token);
+                   
+                 }
              }).catch(err => {
                     console.log(err);
             });
         
-        return 'hello';
+        return ;
         }
       
 
@@ -79,7 +90,11 @@ class AuthPage extends Component {
                 }
                 return res.json();
             }).then(resData => {
-    
+                 
+                  this.switchModeHandler(); 
+
+                  this.state.setState({response : "<span>Account created Successfuly, thank you to login</span>"});
+
              }).catch(err => {
                     console.log(err);
             });
@@ -96,6 +111,7 @@ class AuthPage extends Component {
 
         return (
            <form className="auth-form" onSubmit={this.submitHandler}>
+               {this.state.response}
             { !this.state.isLogin && 
               
               <React.Fragment>
